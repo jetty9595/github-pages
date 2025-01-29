@@ -1,0 +1,103 @@
+React, {useRef, useState}를 "react"에서 가져옵니다;
+"react-webcam"에서 웹캠 가져오기;
+"@/components/ui/button"에서 {버튼 } 가져오기;
+"@tensorflow/tfjs"에서 tf로 가져오기 *;
+"@tensorflow-models/mobilnet"에서 모바일넷으로 가져오기 *;
+
+const colorData = {
+ "봄웜": { best: ["#FFD700", "#FFA07A", "#FF4500"], worst: ["#8A2BE2", "#4B0082", "#191970"] },
+ "여름쿨": { best: ["#87CEFA", "#4682B4", "#B0C4DE"], worst: ["#DAA520", "#8B4513", "#A52A2A"] },
+ "가을웜": { best: ["#FF8C00", "#CD853F", "#D2691E"], worst: ["#4169E1", "#000080", "#5F9EA0"] },
+ "겨울쿨": { best: ["#00BFFF", "#1E90FF", "#6495ED"], worst: ["#FF6347", "#B22222", "#DC143C"] }
+};
+
+Const PersonalColorAnalyzer = () => {
+ const webcamRef = useRef(null);
+ const [image, setImage] = useState(null);
+ const [result, setResult] = useState(null);
+ const [업로드된 이미지, setUploadedImage] = useState(null);
+
+ const 캡처 = 비동기 () => {
+ const imageSrc = 웹캠Ref.current.getScreenshot();
+ setImage(imageSrc);
+ 대기: analyColor(imageSrc);
+ };
+
+ const handleImageUpload = (이벤트) => {
+ const 파일 = event.target.파일[0];
+ 만약 (파일) {
+ const reader = new FileReader();
+ reader.onloadend = () => {
+ setUploadedImage(reader.result);
+ analyColor(reader.result);
+ };
+ reader.readAsDataURL(파일);
+ }
+ };
+
+ const analysisColor = async (imageSrc) => {
+ constimg = new Image();
+ img.src = imageSrc;
+ img.onload = async () => {
+ const model = wait mobilenet.load ();
+ 상수 텐서 = tf.browser.fromPixels(img).가장 가까운 이웃 크기를 조정합니다([224, 224]).Dims()를 Float(.div(255)로 확장합니다;
+ 구성 예측 = 대기 모델.classify(tensor);
+ 색상 결정(예측);
+ };
+ };
+
+ const determinateColor = (predict 이온) => {
+ const 키워드 = predictions.map((pred) => pred.className.toLowerCase();
+ 만약 (keywords.some((단어) => 단어.includes("warm")) {
+ setResult("봄웜");
+ } 그렇지 않으면 (keywords.some((단어) => 단어.includes("cool")) {
+ setResult("여름쿨");
+ } 그 외 {
+ setResult("가을웜");
+ }
+ };
+
+ 반품 (
+ <div className="플렉스 플렉스-콜 아이템-센터 p-4 bg-그린-100분-h-스크린">
+ <header className="w-full bg-green-500 텍스트-화이트 p-4 텍스트-센터 텍스트-2xl 폰트-볼드 라운드-LG 섀도우-md">
+ 퍼스널 컬러 진단
+ </header>
+ 메인 클래스이름="bg-흰색 p-6 둥근-lg 그림자-lg w-전체 max-w-lg mt-6 텍스트 센터">
+ <Webcam ref={webcamRef} 스크린샷포맷="image/jpeg" className="라운드-LG 섀도우-LG w-full" />
+ Click={capture}의 <버튼 className="mt-4 w-full bg-white 텍스트-녹색-600 경계-녹색-500 둥근-풀 섀도우-md p-2 텍스트-lg 폰트-세미볼트">
+ 웹캠으로 진단
+ </버튼>
+ <p className="mt-4">또는 이미지를 업로드하세요</p>
+ Change={handleImageUpload} className="mt-2" />에서 <입력 유형="file" accept="image/*"
+ {result & & (
+ <div className="mt-4 p-4 bg-green-50 라운드-lg shadow-md text-center w-full">
+ <p className="text-xl 폰트-반볼드 text-green-900">당신의 퍼스널 컬러는: {result}/p>
+ <div className="grid grid-cols-2 gap-4 mt-4">
+ <div className="p-4 bg-녹색-100 둥근-lg shadow-md">
+ <p className="text-lg 폰트-볼드 text-green-700">베스트 컬러</p>
+ <div className="플렉스 갭-2 정당화-중심 mt-2">
+ {colorData[결과]?best.map((색상, 인덱스) => (
+ <div key={index} class이름="w-10 h-10 반올림-풀" 스타일={{ 배경색: 색상 }></div>
+ ))}
+ </div>
+ </div>
+ <div className="p-4 bg-red-100 둥근-lg shadow-md">
+ <p className="text-lg 폰트-볼드 텍스트-red-700">워스트 컬러</p>
+ <div className="플렉스 갭-2 정당화-중심 mt-2">
+ {colorData[결과]?worst.map((색상, 인덱스) => (
+ <div key={index} class이름="w-10 h-10 반올림-풀" 스타일={{ 배경색: 색상 }></div>
+ ))}
+ </div>
+ </div>
+ </div>
+ </div>
+ )}
+ </메인>
+ <footer className="w-전체 텍스트 센터 p-4 bg-녹색-500 텍스트-흰색 mt-6 둥근-lg shadow-md">
+ © 2025 퍼스널 컬러 분석기
+ </footer>
+ </div>
+ );
+};
+
+기본 PersonalColorAnalyzer 내보내기;
